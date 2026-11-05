@@ -6,3 +6,6 @@ __pycache__/
 .ruff_cache/
 out/
 .vh-cache/
+assets/sfx/
+references/
+examples/*/

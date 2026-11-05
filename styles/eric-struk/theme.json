@@ -1,0 +1,15 @@
+{
+  "description": "Eric Struk: fast travel/review shorts. 1-2 word ALL-CAPS captions, yellow keyword, money-green price stamps, 'COMING UP...' teasers, white question cards.",
+  "fonts": {"display": "Montserrat", "displayWeight": 900, "caption": "Montserrat", "captionWeight": 800, "body": "Inter", "serif": "PlayfairDisplay"},
+  "colors": {
+    "text": "#FFFFFF", "stroke": "#000000", "highlight": "#FFE600", "accent": "#3DDC4A", "money": "#2EE04F",
+    "card": "#FFFFFF", "cardText": "#111111", "panel": "#E9E9EC", "panelText": "#555555",
+    "lowerThird": "#FFE600", "lowerThirdText": "#111111", "tag": "#1E6FFF", "tagText": "#FFFFFF",
+    "infoCard": "rgba(18,18,22,0.92)", "infoCardText": "#FFFFFF", "paperRed": "#D9433F", "paperBlue": "#2D6CDF"
+  },
+  "captions": {"preset": "bold-pop", "position": "center", "maxWords": 2, "uppercase": true, "size": 104, "strokeWidth": 7},
+  "transitions": {"default": "cut", "accent": "whip"},
+  "pacing": {"avgShotSeconds": 2.3, "maxShotSeconds": 5, "punchInEvery": 3},
+  "sfx": {"transition": "whoosh", "stamp": "pop", "reveal": "cash", "text": "click", "teaser": "riser"},
+  "music": {"volume": 0.2, "duckTo": 0.06}
+}
