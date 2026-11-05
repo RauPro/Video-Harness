@@ -1,0 +1,1577 @@
+{
+  "$defs": {
+    "ArrowCallout": {
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "duration": {
+          "exclusiveMinimum": 0,
+          "title": "Duration",
+          "type": "number"
+        },
+        "sfx": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional sound effect played at overlay start.",
+          "title": "Sfx"
+        },
+        "type": {
+          "const": "arrowCallout",
+          "title": "Type",
+          "type": "string"
+        },
+        "text": {
+          "default": "",
+          "title": "Text",
+          "type": "string"
+        },
+        "x": {
+          "default": 0.5,
+          "description": "Arrow tip, fraction of width.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "default": 0.5,
+          "description": "Arrow tip, fraction of height.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Y",
+          "type": "number"
+        },
+        "angle": {
+          "default": -135,
+          "description": "Degrees; direction the arrow comes from.",
+          "title": "Angle",
+          "type": "number"
+        },
+        "color": {
+          "default": "#ff2a2a",
+          "title": "Color",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "duration",
+        "type"
+      ],
+      "title": "ArrowCallout",
+      "type": "object"
+    },
+    "Captions": {
+      "additionalProperties": false,
+      "properties": {
+        "src": {
+          "default": "captions.json",
+          "title": "Src",
+          "type": "string"
+        },
+        "preset": {
+          "anyOf": [
+            {
+              "enum": [
+                "bold-pop",
+                "karaoke",
+                "subtle",
+                "none"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Preset"
+        },
+        "position": {
+          "anyOf": [
+            {
+              "enum": [
+                "top",
+                "upper",
+                "center",
+                "lower",
+                "bottom"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Position"
+        },
+        "maxWords": {
+          "anyOf": [
+            {
+              "maximum": 8,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maxwords"
+        },
+        "uppercase": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Uppercase"
+        },
+        "highlight": {
+          "description": "Words always drawn in highlight color.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Highlight",
+          "type": "array"
+        },
+        "hideDuring": {
+          "description": "[start, end] ranges where captions are hidden (e.g. full cards).",
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array"
+          },
+          "title": "Hideduring",
+          "type": "array"
+        }
+      },
+      "title": "Captions",
+      "type": "object"
+    },
+    "ComingUp": {
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "duration": {
+          "exclusiveMinimum": 0,
+          "title": "Duration",
+          "type": "number"
+        },
+        "sfx": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional sound effect played at overlay start.",
+          "title": "Sfx"
+        },
+        "type": {
+          "const": "comingUp",
+          "title": "Type",
+          "type": "string"
+        },
+        "text": {
+          "default": "COMING UP...",
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "duration",
+        "type"
+      ],
+      "title": "ComingUp",
+      "type": "object"
+    },
+    "Emoji": {
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "duration": {
+          "exclusiveMinimum": 0,
+          "title": "Duration",
+          "type": "number"
+        },
+        "sfx": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional sound effect played at overlay start.",
+          "title": "Sfx"
+        },
+        "type": {
+          "const": "emoji",
+          "title": "Type",
+          "type": "string"
+        },
+        "emoji": {
+          "title": "Emoji",
+          "type": "string"
+        },
+        "x": {
+          "default": 0.5,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "default": 0.3,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Y",
+          "type": "number"
+        },
+        "size": {
+          "default": 180,
+          "exclusiveMinimum": 10,
+          "maximum": 800,
+          "title": "Size",
+          "type": "number"
+        }
+      },
+      "required": [
+        "start",
+        "duration",
+        "type",
+        "emoji"
+      ],
+      "title": "Emoji",
+      "type": "object"
+    },
+    "Flash": {
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "duration": {
+          "exclusiveMinimum": 0,
+          "title": "Duration",
+          "type": "number"
+        },
+        "sfx": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional sound effect played at overlay start.",
+          "title": "Sfx"
+        },
+        "type": {
+          "const": "flash",
+          "title": "Type",
+          "type": "string"
+        },
+        "color": {
+          "default": "#ffffff",
+          "title": "Color",
+          "type": "string"
+        },
+        "opacity": {
+          "default": 0.9,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Opacity",
+          "type": "number"
+        }
+      },
+      "required": [
+        "start",
+        "duration",
+        "type"
+      ],
+      "title": "Flash",
+      "type": "object"
+    },
+    "ImageInsert": {
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "duration": {
+          "exclusiveMinimum": 0,
+          "title": "Duration",
+          "type": "number"
+        },
+        "sfx": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional sound effect played at overlay start.",
+          "title": "Sfx"
+        },
+        "type": {
+          "const": "imageInsert",
+          "title": "Type",
+          "type": "string"
+        },
+        "src": {
+          "description": "Image/video path relative to the project (or catalog id, conformed).",
+          "title": "Src",
+          "type": "string"
+        },
+        "frame": {
+          "default": "phone",
+          "enum": [
+            "phone",
+            "polaroid",
+            "none"
+          ],
+          "title": "Frame",
+          "type": "string"
+        },
+        "background": {
+          "default": "none",
+          "enum": [
+            "paper-red",
+            "paper-blue",
+            "blur",
+            "none"
+          ],
+          "title": "Background",
+          "type": "string"
+        },
+        "x": {
+          "default": 0.5,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "default": 0.5,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Y",
+          "type": "number"
+        },
+        "scale": {
+          "default": 0.6,
+          "exclusiveMinimum": 0,
+          "maximum": 1.5,
+          "title": "Scale",
+          "type": "number"
+        },
+        "rotate": {
+          "default": 0,
+          "title": "Rotate",
+          "type": "number"
+        }
+      },
+      "required": [
+        "start",
+        "duration",
+        "type",
+        "src"
+      ],
+      "title": "ImageInsert",
+      "type": "object"
+    },
+    "InfoCard": {
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "duration": {
+          "exclusiveMinimum": 0,
+          "title": "Duration",
+          "type": "number"
+        },
+        "sfx": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional sound effect played at overlay start.",
+          "title": "Sfx"
+        },
+        "type": {
+          "const": "infoCard",
+          "title": "Type",
+          "type": "string"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Title"
+        },
+        "rows": {
+          "items": {
+            "$ref": "#/$defs/InfoRow"
+          },
+          "title": "Rows",
+          "type": "array"
+        },
+        "accent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Accent"
+        },
+        "position": {
+          "default": "upper",
+          "enum": [
+            "top",
+            "upper",
+            "center",
+            "lower",
+            "bottom"
+          ],
+          "title": "Position",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "duration",
+        "type",
+        "rows"
+      ],
+      "title": "InfoCard",
+      "type": "object"
+    },
+    "InfoRow": {
+      "additionalProperties": false,
+      "properties": {
+        "left": {
+          "title": "Left",
+          "type": "string"
+        },
+        "right": {
+          "default": "",
+          "title": "Right",
+          "type": "string"
+        }
+      },
+      "required": [
+        "left"
+      ],
+      "title": "InfoRow",
+      "type": "object"
+    },
+    "KineticText": {
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "duration": {
+          "exclusiveMinimum": 0,
+          "title": "Duration",
+          "type": "number"
+        },
+        "sfx": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional sound effect played at overlay start.",
+          "title": "Sfx"
+        },
+        "type": {
+          "const": "kineticText",
+          "title": "Type",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "highlight": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Highlight",
+          "type": "array"
+        },
+        "position": {
+          "default": "center",
+          "enum": [
+            "top",
+            "upper",
+            "center",
+            "lower",
+            "bottom"
+          ],
+          "title": "Position",
+          "type": "string"
+        },
+        "size": {
+          "default": "l",
+          "enum": [
+            "m",
+            "l",
+            "xl"
+          ],
+          "title": "Size",
+          "type": "string"
+        },
+        "animation": {
+          "default": "pop",
+          "enum": [
+            "pop",
+            "slide",
+            "typewriter",
+            "stack"
+          ],
+          "title": "Animation",
+          "type": "string"
+        },
+        "color": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Color"
+        },
+        "highlightColor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Highlightcolor"
+        }
+      },
+      "required": [
+        "start",
+        "duration",
+        "type",
+        "text"
+      ],
+      "title": "KineticText",
+      "type": "object"
+    },
+    "ListHeader": {
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "duration": {
+          "exclusiveMinimum": 0,
+          "title": "Duration",
+          "type": "number"
+        },
+        "sfx": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional sound effect played at overlay start.",
+          "title": "Sfx"
+        },
+        "type": {
+          "const": "listHeader",
+          "title": "Type",
+          "type": "string"
+        },
+        "number": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "title": "Number"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "subtitle": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Subtitle"
+        },
+        "position": {
+          "default": "top",
+          "enum": [
+            "top",
+            "upper",
+            "center",
+            "lower",
+            "bottom"
+          ],
+          "title": "Position",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "duration",
+        "type",
+        "number",
+        "title"
+      ],
+      "title": "ListHeader",
+      "type": "object"
+    },
+    "LowerThird": {
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "duration": {
+          "exclusiveMinimum": 0,
+          "title": "Duration",
+          "type": "number"
+        },
+        "sfx": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional sound effect played at overlay start.",
+          "title": "Sfx"
+        },
+        "type": {
+          "const": "lowerThird",
+          "title": "Type",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "kicker": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kicker"
+        },
+        "subtitle": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Subtitle"
+        },
+        "variant": {
+          "default": "stack",
+          "enum": [
+            "stack",
+            "tag"
+          ],
+          "title": "Variant",
+          "type": "string"
+        },
+        "position": {
+          "default": "lower",
+          "enum": [
+            "top",
+            "upper",
+            "center",
+            "lower",
+            "bottom"
+          ],
+          "title": "Position",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "duration",
+        "type",
+        "title"
+      ],
+      "title": "LowerThird",
+      "type": "object"
+    },
+    "Music": {
+      "additionalProperties": false,
+      "properties": {
+        "src": {
+          "title": "Src",
+          "type": "string"
+        },
+        "start": {
+          "default": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "sourceIn": {
+          "default": 0,
+          "title": "Sourcein",
+          "type": "number"
+        },
+        "volume": {
+          "default": 0.22,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Volume",
+          "type": "number"
+        },
+        "duckTo": {
+          "default": 0.07,
+          "description": "Music level while someone is speaking.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Duckto",
+          "type": "number"
+        },
+        "fadeIn": {
+          "default": 0.5,
+          "title": "Fadein",
+          "type": "number"
+        },
+        "fadeOut": {
+          "default": 1.5,
+          "title": "Fadeout",
+          "type": "number"
+        }
+      },
+      "required": [
+        "src"
+      ],
+      "title": "Music",
+      "type": "object"
+    },
+    "PriceStamp": {
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "duration": {
+          "exclusiveMinimum": 0,
+          "title": "Duration",
+          "type": "number"
+        },
+        "sfx": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional sound effect played at overlay start.",
+          "title": "Sfx"
+        },
+        "type": {
+          "const": "priceStamp",
+          "title": "Type",
+          "type": "string"
+        },
+        "amount": {
+          "title": "Amount",
+          "type": "string"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "sublabel": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sublabel"
+        },
+        "variant": {
+          "default": "badge",
+          "enum": [
+            "badge",
+            "bubble",
+            "slime"
+          ],
+          "title": "Variant",
+          "type": "string"
+        },
+        "position": {
+          "default": "center",
+          "enum": [
+            "top",
+            "upper",
+            "center",
+            "lower",
+            "bottom"
+          ],
+          "title": "Position",
+          "type": "string"
+        },
+        "color": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Color"
+        }
+      },
+      "required": [
+        "start",
+        "duration",
+        "type",
+        "amount"
+      ],
+      "title": "PriceStamp",
+      "type": "object"
+    },
+    "ProgressBar": {
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "duration": {
+          "exclusiveMinimum": 0,
+          "title": "Duration",
+          "type": "number"
+        },
+        "sfx": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional sound effect played at overlay start.",
+          "title": "Sfx"
+        },
+        "type": {
+          "const": "progressBar",
+          "title": "Type",
+          "type": "string"
+        },
+        "color": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Color"
+        }
+      },
+      "required": [
+        "start",
+        "duration",
+        "type"
+      ],
+      "title": "ProgressBar",
+      "type": "object"
+    },
+    "QuestionCard": {
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "duration": {
+          "exclusiveMinimum": 0,
+          "title": "Duration",
+          "type": "number"
+        },
+        "sfx": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional sound effect played at overlay start.",
+          "title": "Sfx"
+        },
+        "type": {
+          "const": "questionCard",
+          "title": "Type",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "kicker": {
+          "default": "QUESTION",
+          "title": "Kicker",
+          "type": "string"
+        },
+        "highlight": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Highlight",
+          "type": "array"
+        }
+      },
+      "required": [
+        "start",
+        "duration",
+        "type",
+        "text"
+      ],
+      "title": "QuestionCard",
+      "type": "object"
+    },
+    "Reframe": {
+      "additionalProperties": false,
+      "description": "Reframe a 360 equirectangular source into a flat view (Insta360 exports).",
+      "properties": {
+        "yaw": {
+          "default": 0,
+          "maximum": 180,
+          "minimum": -180,
+          "title": "Yaw",
+          "type": "number"
+        },
+        "pitch": {
+          "default": 0,
+          "maximum": 90,
+          "minimum": -90,
+          "title": "Pitch",
+          "type": "number"
+        },
+        "roll": {
+          "default": 0,
+          "maximum": 180,
+          "minimum": -180,
+          "title": "Roll",
+          "type": "number"
+        },
+        "fov": {
+          "default": 100,
+          "maximum": 170,
+          "minimum": 30,
+          "title": "Fov",
+          "type": "number"
+        }
+      },
+      "title": "Reframe",
+      "type": "object"
+    },
+    "Sfx": {
+      "additionalProperties": false,
+      "properties": {
+        "src": {
+          "description": "Library name (e.g. 'whoosh') or a path relative to the project.",
+          "title": "Src",
+          "type": "string"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "volume": {
+          "default": 0.6,
+          "maximum": 2,
+          "minimum": 0,
+          "title": "Volume",
+          "type": "number"
+        }
+      },
+      "required": [
+        "src",
+        "start"
+      ],
+      "title": "Sfx",
+      "type": "object"
+    },
+    "Transition": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "default": "cut",
+          "enum": [
+            "cut",
+            "whip",
+            "flash",
+            "zoom",
+            "fade",
+            "glitch",
+            "slide"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "duration": {
+          "default": 0.25,
+          "exclusiveMinimum": 0,
+          "maximum": 2,
+          "title": "Duration",
+          "type": "number"
+        },
+        "direction": {
+          "default": "left",
+          "enum": [
+            "left",
+            "right",
+            "up",
+            "down"
+          ],
+          "title": "Direction",
+          "type": "string"
+        },
+        "color": {
+          "default": "#ffffff",
+          "title": "Color",
+          "type": "string"
+        }
+      },
+      "title": "Transition",
+      "type": "object"
+    },
+    "VideoClip": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "source": {
+          "description": "Catalog clip id (e.g. 'c_1a2b3c4d') or a file path.",
+          "title": "Source",
+          "type": "string"
+        },
+        "kind": {
+          "default": "video",
+          "enum": [
+            "video",
+            "image"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "start": {
+          "description": "Start on the output timeline.",
+          "minimum": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "duration": {
+          "exclusiveMinimum": 0,
+          "title": "Duration",
+          "type": "number"
+        },
+        "sourceIn": {
+          "default": 0,
+          "description": "Offset into the source where this shot begins.",
+          "minimum": 0,
+          "title": "Sourcein",
+          "type": "number"
+        },
+        "speed": {
+          "default": 1.0,
+          "exclusiveMinimum": 0.1,
+          "maximum": 8,
+          "title": "Speed",
+          "type": "number"
+        },
+        "volume": {
+          "default": 0.0,
+          "description": "Natural sound level (0 = muted).",
+          "maximum": 2,
+          "minimum": 0,
+          "title": "Volume",
+          "type": "number"
+        },
+        "fit": {
+          "default": "cover",
+          "enum": [
+            "cover",
+            "contain",
+            "blur"
+          ],
+          "title": "Fit",
+          "type": "string"
+        },
+        "zoom": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Zoom"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "punchIns": {
+          "description": "Seconds from clip start; scale jumps.",
+          "items": {
+            "type": "number"
+          },
+          "title": "Punchins",
+          "type": "array"
+        },
+        "punchScale": {
+          "default": 1.15,
+          "maximum": 2,
+          "minimum": 1,
+          "title": "Punchscale",
+          "type": "number"
+        },
+        "transitionIn": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Transition"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reframe": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reframe"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "grade": {
+          "default": "none",
+          "enum": [
+            "none",
+            "warm",
+            "cool",
+            "vivid",
+            "bw",
+            "film"
+          ],
+          "title": "Grade",
+          "type": "string"
+        },
+        "note": {
+          "default": "",
+          "title": "Note",
+          "type": "string"
+        },
+        "src": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Set by `vh conform`: conformed file relative to project.",
+          "title": "Src"
+        },
+        "srcIn": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Set by `vh conform`: offset inside the conformed file.",
+          "title": "Srcin"
+        }
+      },
+      "required": [
+        "id",
+        "source",
+        "start",
+        "duration"
+      ],
+      "title": "VideoClip",
+      "type": "object"
+    },
+    "Voiceover": {
+      "additionalProperties": false,
+      "properties": {
+        "src": {
+          "title": "Src",
+          "type": "string"
+        },
+        "start": {
+          "default": 0,
+          "title": "Start",
+          "type": "number"
+        },
+        "volume": {
+          "default": 1.0,
+          "title": "Volume",
+          "type": "number"
+        }
+      },
+      "required": [
+        "src"
+      ],
+      "title": "Voiceover",
+      "type": "object"
+    },
+    "Zoom": {
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "default": 1.0,
+          "description": "Scale at clip start (Ken Burns).",
+          "maximum": 3,
+          "minimum": 0.5,
+          "title": "Start",
+          "type": "number"
+        },
+        "end": {
+          "default": 1.0,
+          "description": "Scale at clip end.",
+          "maximum": 3,
+          "minimum": 0.5,
+          "title": "End",
+          "type": "number"
+        },
+        "focusX": {
+          "default": 0.5,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Focusx",
+          "type": "number"
+        },
+        "focusY": {
+          "default": 0.5,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Focusy",
+          "type": "number"
+        }
+      },
+      "title": "Zoom",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "const": 1,
+      "default": 1,
+      "title": "Version",
+      "type": "integer"
+    },
+    "title": {
+      "default": "",
+      "title": "Title",
+      "type": "string"
+    },
+    "format": {
+      "default": "vertical",
+      "enum": [
+        "vertical",
+        "horizontal",
+        "square"
+      ],
+      "title": "Format",
+      "type": "string"
+    },
+    "fps": {
+      "default": 30,
+      "maximum": 60,
+      "minimum": 12,
+      "title": "Fps",
+      "type": "integer"
+    },
+    "style": {
+      "default": "raul",
+      "title": "Style",
+      "type": "string"
+    },
+    "duration": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Defaults to the end of the last element.",
+      "title": "Duration"
+    },
+    "voiceover": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Voiceover"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "music": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Music"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "captions": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Captions"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "video": {
+      "items": {
+        "$ref": "#/$defs/VideoClip"
+      },
+      "title": "Video",
+      "type": "array"
+    },
+    "overlays": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "arrowCallout": "#/$defs/ArrowCallout",
+            "comingUp": "#/$defs/ComingUp",
+            "emoji": "#/$defs/Emoji",
+            "flash": "#/$defs/Flash",
+            "imageInsert": "#/$defs/ImageInsert",
+            "infoCard": "#/$defs/InfoCard",
+            "kineticText": "#/$defs/KineticText",
+            "listHeader": "#/$defs/ListHeader",
+            "lowerThird": "#/$defs/LowerThird",
+            "priceStamp": "#/$defs/PriceStamp",
+            "progressBar": "#/$defs/ProgressBar",
+            "questionCard": "#/$defs/QuestionCard"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/KineticText"
+          },
+          {
+            "$ref": "#/$defs/PriceStamp"
+          },
+          {
+            "$ref": "#/$defs/LowerThird"
+          },
+          {
+            "$ref": "#/$defs/ListHeader"
+          },
+          {
+            "$ref": "#/$defs/ComingUp"
+          },
+          {
+            "$ref": "#/$defs/QuestionCard"
+          },
+          {
+            "$ref": "#/$defs/Flash"
+          },
+          {
+            "$ref": "#/$defs/ArrowCallout"
+          },
+          {
+            "$ref": "#/$defs/InfoCard"
+          },
+          {
+            "$ref": "#/$defs/ImageInsert"
+          },
+          {
+            "$ref": "#/$defs/Emoji"
+          },
+          {
+            "$ref": "#/$defs/ProgressBar"
+          }
+        ]
+      },
+      "title": "Overlays",
+      "type": "array"
+    },
+    "sfx": {
+      "items": {
+        "$ref": "#/$defs/Sfx"
+      },
+      "title": "Sfx",
+      "type": "array"
+    },
+    "meta": {
+      "additionalProperties": true,
+      "title": "Meta",
+      "type": "object"
+    }
+  },
+  "title": "Timeline",
+  "type": "object"
+}

@@ -106,7 +106,10 @@ def typing() -> np.ndarray:
     for start in np.cumsum(_rng.uniform(0.05, 0.11, 9)):
         c = click() * _rng.uniform(0.5, 1)
         i = int(start * SR)
-        out[i : i + len(c)] += c[: len(out) - i]
+        n = min(len(c), len(out) - i)
+        if n <= 0:
+            break
+        out[i : i + n] += c[:n]
     return out
 
 
