@@ -13,30 +13,57 @@ import json
 import re
 import shutil
 import subprocess
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from vh.transcribe import plain_text, transcribe
 
 
+def _ytdlp() -> str:
+    return shutil.which("yt-dlp") or "yt-dlp"
+
+
+def _views(entry: dict) -> int | None:
+    url = entry.get("url") or entry.get("webpage_url") or entry["id"]
+    r = subprocess.run([_ytdlp(), "-J", "--skip-download", "--no-playlist", url], capture_output=True, text=True)
+    return json.loads(r.stdout).get("view_count") if r.returncode == 0 and r.stdout else None
+
+
 def top_videos(url: str, n: int, scan: int) -> list[dict]:
     raw = subprocess.run(
-        [shutil.which("yt-dlp") or "yt-dlp", "--flat-playlist", "--playlist-end", str(scan), "-J", url],
+        [_ytdlp(), "--flat-playlist", "--playlist-end", str(scan), "-J", url],
         check=True,
         capture_output=True,
         text=True,
     ).stdout
-    entries = [e for e in json.loads(raw).get("entries", []) if e.get("view_count")]
-    return sorted(entries, key=lambda e: -e["view_count"])[:n]
+    entries = json.loads(raw).get("entries") or []
+    missing = [e for e in entries if not e.get("view_count")]
+    if missing:
+        print(f"Resolving view counts for {len(missing)} videos...")
+        with ThreadPoolExecutor(8) as pool:
+            for e, views in zip(missing, pool.map(_views, missing), strict=True):
+                e["view_count"] = views
+    ranked = [e for e in entries if e.get("view_count")]
+    if not ranked:
+        raise SystemExit(f"No view counts available for {url}; can't rank its videos.")
+    return sorted(ranked, key=lambda e: -e["view_count"])[:n]
 
 
 def download(entry: dict, out: Path, max_seconds: int) -> Path:
     dest = out / f"{entry['id']}.mp3"
     if not dest.exists():
         url = entry.get("url") or entry.get("webpage_url") or entry["id"]
-        cmd = ["yt-dlp", "-f", "ba/b", "-x", "--audio-format", "mp3", "-q", "--no-playlist"]
+        cmd = [_ytdlp(), "-f", "ba/b", "-x", "--audio-format", "mp3", "-q", "--no-playlist"]
         cmd += ["--download-sections", f"*0-{max_seconds}", "-o", str(out / f"{entry['id']}.%(ext)s"), url]
         subprocess.run(cmd, check=True)
     return dest
+
+
+# A price ("$500", "500 dólares") counts once; so does a bare number or a spoken price word.
+NUMBER = re.compile(
+    r"\$\s?\d[\d,.]*|\d[\d,.]*(?:\s?(?:dólares|dólar|dollars?|baht|euros?|usd)\b)?|\b(?:dólares|dólar|dollars?|baht|precio|price)\b",
+    re.I,
+)
 
 
 def metrics(words: list[dict]) -> dict:
@@ -46,7 +73,7 @@ def metrics(words: list[dict]) -> dict:
         "words": len(words),
         "wpm": round(len(words) / span * 60),
         "firstWordAt": round(words[0]["startMs"] / 1000, 2),
-        "numbersPerMin": round(len(re.findall(r"\$|\d+|dólar|dollar|baht|precio|price", text, re.I)) / span * 60, 1),
+        "numbersPerMin": round(len(NUMBER.findall(text)) / span * 60, 1),
         "questionsPerMin": round(text.count("?") / span * 60, 1),
         "opening": "".join(w["text"] for w in words if w["startMs"] < words[0]["startMs"] + 3000).strip(),
         "ending": "".join(w["text"] for w in words if w["startMs"] > words[-1]["endMs"] - 12000).strip(),

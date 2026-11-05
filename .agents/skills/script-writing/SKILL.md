@@ -57,7 +57,7 @@ diferencia.").
 
 **Guide / budget (2-3 min):** myth question → promise + open loop ("Al final te digo el presupuesto para cada tipo de
 viajero") → sections by topic (vuelos, alojamiento, comida, tips), each with 2-4 prices → summary by traveler type →
-question CTA. Raul's budget video has 18 numbers/min. Numbers are the content; turn each one into a `priceStamp`.
+question CTA. Raul's budget video has 7 numbers/min, the most of the 32 analyzed. Numbers are the content; turn each one into a `priceStamp`.
 
 **Eric escalation:** claim + "according to Google" → "You see, normally…" (contrast) → "Right off the bat…" →
 "Up next…" → "Now it was time to take this to the next level" → "The final thing…" → one-line conclusion. A sponsor goes
