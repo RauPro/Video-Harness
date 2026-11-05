@@ -26,6 +26,7 @@ proxies are skipped. Raw `.insv` files are indexed but must be exported from Ins
 vh search "pad thai mercado"                     # transcript / description / tags / path / location
 vh search --orientation vertical --min-duration 3 --after 2025-01-01
 vh search --undescribed --limit 50               # clips nobody has looked at yet
+vh search --unused --path 2026-thailand          # not used in any built video yet
 vh search --json "playa"                         # machine-readable
 vh show <id>                                     # all metadata + contact sheet path
 ```

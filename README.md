@@ -30,6 +30,18 @@ uv run vh doctor
 Run it on the computer the footage disk is plugged into. The catalog lives in `~/.vh/` (override with
 `VH_DATA`, `VH_CATALOG`, `VH_CACHE`).
 
+`vh init` creates your workspace (`~/VideoHarness`, or `VH_WORKSPACE`, e.g. on the external disk):
+
+```
+footage/phone, footage/insta360   raw footage (optional: vh ingest indexes any folder in place, nothing is copied)
+assets/music|sfx|images|brand     reusable assets; vh assets tag <file> --mood chill --license "..."
+projects/<date>-<slug>/           one folder per video (vh new <slug>), with out/final.mp4
+published/<date>-<slug>/          what you posted: final.mp4 + meta.json with url and views (vh publish / vh published)
+ideas/<slug>.md                   video ideas proposed from your footage (vh ideas)
+```
+
+The catalog also records which clips each video used, so `vh search --unused` and `vh ideas` show fresh footage.
+
 ## Use with an agent
 
 Open the repo in Claude Code or Codex and ask, for example:
@@ -37,14 +49,17 @@ Open the repo in Claude Code or Codex and ask, for example:
 > Make a 60 s vertical video in my style from projects/bangkok/script.md using my footage in
 > /Volumes/Insta360/2026-thailand and ~/Phone/DCIM.
 
+> What videos can I make from my Thailand footage that I haven't used yet?
+
 The agent follows `AGENTS.md` (Claude Code reads it via `CLAUDE.md`) and the skills in `.agents/skills/`
-(symlinked to `.claude/skills/`): `make-video`, `script-writing`, `footage-search`, `timeline-authoring`,
+(symlinked to `.claude/skills/`): `make-video`, `video-ideas`, `script-writing`, `footage-search`, `timeline-authoring`,
 `creator-styles`, `video-qa`, `insta360`.
 
 ## Use by hand
 
 ```
 uv run vh ingest /Volumes/Insta360 ~/Phone/DCIM --transcribe
+uv run vh ideas --unused                     # what can I make from footage I haven't used?
 uv run vh new projects/bangkok --style raul --format vertical
 $EDITOR projects/bangkok/script.md
 uv run vh voiceover projects/bangkok --provider elevenlabs
