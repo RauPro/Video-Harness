@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -137,6 +138,7 @@ def search(
     max_duration: float | None = None,
     speech: Annotated[bool | None, typer.Option(help="Only clips with (or without) speech.")] = None,
     undescribed: bool = False,
+    unused: Annotated[bool, typer.Option(help="Only clips not used in any built video yet.")] = False,
     after: Annotated[str | None, typer.Option(help="ISO date, e.g. 2026-04-01")] = None,
     before: str | None = None,
     path: Annotated[str | None, typer.Option(help="Substring of the file path (folder/trip name).")] = None,
@@ -151,6 +153,7 @@ def search(
         max_duration=max_duration,
         has_speech=speech,
         undescribed=undescribed,
+        unused=unused,
         after=after,
         before=before,
         path_like=path,
@@ -172,10 +175,11 @@ def search(
 @app.command()
 def show(clip_id: str) -> None:
     """Show everything known about a clip (incl. contact sheet path to look at)."""
-    c = Catalog().get(clip_id)
+    cat = Catalog()
+    c = cat.get(clip_id)
     if not c:
         _fail(f"{clip_id} not found")
-    print(json.dumps(c.to_dict(), ensure_ascii=False, indent=2))
+    print(json.dumps({**c.to_dict(), "usage": cat.usage(clip_id)}, ensure_ascii=False, indent=2))
 
 
 @app.command()
@@ -212,12 +216,17 @@ def new(
     format: Annotated[str, typer.Option(help="vertical|horizontal|square")] = "vertical",
     style: str = "raul",
 ) -> None:
-    """Create a project skeleton (script.md, timeline.json, media/, audio/, ...)."""
+    """Create a project skeleton (script.md, timeline.json, media/, audio/, ...).
+
+    A bare name (`vh new bangkok-food`) goes to <workspace>/projects/<date>-<name> when the workspace exists."""
     from .project import new_project
     from .styles import load_theme
+    from .workspace import is_workspace, project_path
 
     load_theme(style)
-    new_project(project, title=title or project.name, fmt=format, style=style)
+    if len(project.parts) == 1 and is_workspace():
+        project = project_path(project.name)
+    new_project(project, title=title or re.sub(r"^\d{4}-\d{2}-\d{2}-", "", project.name), fmt=format, style=style)
     console.print(f"created {project}; write script.md next")
 
 
@@ -398,7 +407,159 @@ def build(project: ProjectArg, preview: bool = False) -> None:
     conform(project)
     dest = project / "out" / ("preview.mp4" if preview else "final.mp4")
     render(project, preview=preview, out=dest, master=True, concurrency=None)
+    if not preview:
+        n = _record_usage(project)
+        console.print(f"recorded {n} shots from catalog clips as used by {project.name}")
     qa(project, dest)
+
+
+def _used_clips(project: Path) -> list[tuple[str, float, float]]:
+    from .timeline import ImageInsert
+
+    cat, tl = Catalog(), _tl(project)
+    uses = [(cat.find_id(c.source, project), c.sourceIn, c.duration) for c in tl.video]
+    uses += [(cat.find_id(o.src, project), 0.0, o.duration) for o in tl.overlays if isinstance(o, ImageInsert)]
+    return [u for u in uses if u[0]]
+
+
+def _record_usage(project: Path) -> int:
+    return Catalog().record_usage(project, _used_clips(project))
+
+
+# ---------------------------------------------------------------- workspace / ideas / library
+assets_app = typer.Typer(help="Reusable music, SFX, images and brand assets in <workspace>/assets.")
+app.add_typer(assets_app, name="assets")
+
+
+@app.command()
+def init(path: Annotated[Path | None, typer.Argument(help="Defaults to VH_WORKSPACE or ~/VideoHarness.")] = None):
+    """Create the workspace layout: footage/, assets/, projects/, published/, ideas/."""
+    from .workspace import LAYOUT, init_workspace
+
+    r = init_workspace(path)
+    console.print(f"workspace ready at {r}: " + ", ".join(LAYOUT))
+    if path and path.expanduser().resolve() != paths.workspace_dir().resolve():
+        console.print(f"[yellow]set VH_WORKSPACE={r}[/yellow] so vh new/publish/ideas use it")
+
+
+@assets_app.command("list")
+def assets_list(
+    query: Annotated[str | None, typer.Argument(help="Words matched against file name and tags.")] = None,
+    kind: Annotated[str | None, typer.Option(help="music|sfx|images|brand")] = None,
+    as_json: Annotated[bool, typer.Option("--json")] = False,
+) -> None:
+    """List workspace assets with their tags/license."""
+    from .workspace import list_assets
+
+    items = list_assets(kind, query)
+    if as_json:
+        print(json.dumps(items, ensure_ascii=False, indent=1))
+        return
+    t = Table("asset", "dur", "mood", "tags", "license")
+    for a in items:
+        t.add_row(a["asset"], str(a.get("duration") or ""), a.get("mood", ""), a.get("tags", ""), a.get("license", ""))
+    console.print(t)
+
+
+@assets_app.command("tag")
+def assets_tag(
+    file: Annotated[Path, typer.Argument(help="Path inside <workspace>/assets (absolute or e.g. assets/music/x.mp3).")],
+    tags: str | None = None,
+    mood: Annotated[str | None, typer.Option(help="e.g. upbeat, chill, epic, tense")] = None,
+    bpm: str | None = None,
+    license: Annotated[str | None, typer.Option(help="Where it's from / what it allows.")] = None,
+    notes: str | None = None,
+) -> None:
+    """Annotate an asset (stored in <workspace>/assets/assets.json)."""
+    from .workspace import tag_asset
+
+    console.print(tag_asset(file, tags=tags, mood=mood, bpm=bpm, license=license, notes=notes))
+
+
+@assets_app.command("use")
+def assets_use(project: ProjectArg, file: Path) -> None:
+    """Copy an asset into the project and print the src to put in timeline.json."""
+    from .workspace import asset_info, use_asset
+
+    print(use_asset(project, file))
+    if not asset_info(file).get("license"):
+        Console(stderr=True).print(
+            "[yellow]warning: no license recorded; use it only if you own it (vh assets tag <file> --license ...)[/]"
+        )
+
+
+@app.command()
+def ideas(
+    unused: Annotated[bool, typer.Option(help="Only footage not used in a built video.")] = False,
+    path: Annotated[str | None, typer.Option(help="Substring of the file path (trip folder).")] = None,
+    after: str | None = None,
+    gap_days: Annotated[float, typer.Option(help="Pause that starts a new shoot.")] = 2,
+    min_clips: int = 3,
+    as_json: Annotated[bool, typer.Option("--json")] = False,
+) -> None:
+    """Group the catalog into shoots (date + place) with highlights, tags and speech, to propose videos from."""
+    from .ideas import shoots
+
+    res = shoots(Catalog(), gap_days=gap_days, unused_only=unused, path_like=path, after=after, min_clips=min_clips)
+    if as_json:
+        print(json.dumps(res, ensure_ascii=False, indent=1))
+        return
+    t = Table("shoot", "dates", "clips", "min", "unused", "described", "speech", "tags / folder")
+    for sh in res:
+        dates = f"{sh['start']} → {sh['end']}" if sh["start"] else ""
+        t.add_row(
+            sh["id"],
+            dates,
+            str(sh["clips"]),
+            str(sh["minutes"]),
+            str(sh["unused"]),
+            str(sh["described"]),
+            str(sh["withSpeech"]),
+            ", ".join(sh["tags"][:5]) or Path(sh["folders"][0]).name,
+        )
+    console.print(t)
+
+
+@app.command()
+def publish(
+    project: ProjectArg,
+    platform: Annotated[str, typer.Option(help="tiktok|youtube|shorts|instagram|...")],
+    url: str | None = None,
+    title: str | None = None,
+) -> None:
+    """Archive out/final.mp4 + script + timeline in <workspace>/published and mark its clips as published."""
+    from .workspace import publish as do_publish
+
+    clips = _used_clips(project)
+    try:
+        dest = do_publish(project, platform=platform, url=url, title=title, clips=sorted({c for c, _, _ in clips}))
+    except FileNotFoundError as e:
+        _fail(str(e))
+    cat = Catalog()
+    cat.record_usage(project, clips)
+    cat.mark_published(project)
+    console.print(f"published to {dest}")
+
+
+@app.command()
+def published(
+    refresh: Annotated[bool, typer.Option(help="Update view counts from the post URLs (yt-dlp).")] = False,
+    as_json: Annotated[bool, typer.Option("--json")] = False,
+) -> None:
+    """List published videos with platform, URL and views."""
+    from .workspace import list_published, refresh_views
+
+    if refresh:
+        console.print(f"refreshed {refresh_views()} posts")
+    items = list_published()
+    if as_json:
+        print(json.dumps(items, ensure_ascii=False, indent=1))
+        return
+    t = Table("folder", "title", "platform", "date", "views", "url")
+    for m in items:
+        for p in m.get("posts", []):
+            t.add_row(m["folder"], m["title"], p["platform"], p["publishedAt"], str(p.get("views") or ""), p.get("url"))
+    console.print(t)
 
 
 # ---------------------------------------------------------------- styles / references

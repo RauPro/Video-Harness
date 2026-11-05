@@ -29,6 +29,11 @@ CREATE TABLE IF NOT EXISTS clips (
 CREATE VIRTUAL TABLE IF NOT EXISTS clips_fts USING fts5(
   id UNINDEXED, path, transcript, description, tags, location, device, tokenize='unicode61 remove_diacritics 2'
 );
+CREATE TABLE IF NOT EXISTS usage (
+  clip_id TEXT NOT NULL, project TEXT NOT NULL, source_in REAL NOT NULL, duration REAL,
+  published INTEGER DEFAULT 0, used_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (clip_id, project, source_in)
+);
 """
 
 FTS_FIELDS = ("path", "transcript", "description", "tags", "location", "device")
@@ -124,6 +129,7 @@ class Catalog:
         with self.tx() as db:
             db.executemany("DELETE FROM clips WHERE id=?", [(i,) for i in gone])
             db.executemany("DELETE FROM clips_fts WHERE id=?", [(i,) for i in gone])
+            db.executemany("DELETE FROM usage WHERE clip_id=?", [(i,) for i in gone])
         return len(gone)
 
     def search(
@@ -135,6 +141,7 @@ class Catalog:
         max_duration: float | None = None,
         has_speech: bool | None = None,
         undescribed: bool = False,
+        unused: bool = False,
         after: str | None = None,
         before: str | None = None,
         path_like: str | None = None,
@@ -159,6 +166,8 @@ class Catalog:
             where.append("length(coalesce(c.transcript,''))<=20")
         if undescribed:
             where.append("coalesce(c.description,'')=''")
+        if unused:
+            where.append("c.id NOT IN (SELECT clip_id FROM usage)")
         if after:
             where.append("c.created_at>=?")
             args.append(after)
@@ -182,6 +191,39 @@ class Catalog:
         ).fetchone()
         by = self.db.execute("SELECT orientation, count(*) n FROM clips GROUP BY orientation").fetchall()
         return {**dict(r), "by_orientation": {b["orientation"]: b["n"] for b in by}}
+
+    def record_usage(self, project: Path, uses: Iterable[tuple[str, float, float]]) -> int:
+        """Replace the clips recorded for `project` with (clip_id, source_in, duration) rows."""
+        key = str(Path(project).resolve())
+        rows = [(cid, key, round(t, 3), round(d, 3)) for cid, t, d in uses if self.get(cid)]
+        with self.tx() as db:
+            prev = db.execute("SELECT max(published) p FROM usage WHERE project=?", (key,)).fetchone()["p"] or 0
+            db.execute("DELETE FROM usage WHERE project=?", (key,))
+            db.executemany(
+                "INSERT OR REPLACE INTO usage (clip_id, project, source_in, duration, published) VALUES (?,?,?,?,?)",
+                [(*r, prev) for r in rows],
+            )
+        return len(rows)
+
+    def mark_published(self, project: Path) -> None:
+        with self.tx() as db:
+            db.execute("UPDATE usage SET published=1 WHERE project=?", (str(Path(project).resolve()),))
+
+    def usage(self, clip_id: str | None = None) -> list[dict]:
+        sql, args = "SELECT * FROM usage", []
+        if clip_id:
+            sql, args = sql + " WHERE clip_id=?", [clip_id]
+        return [dict(r) for r in self.db.execute(sql + " ORDER BY used_at, project, source_in", args)]
+
+    def find_id(self, source: str, project: Path | None = None) -> str | None:
+        """Catalog id for a timeline `source` (an id or a file path), if the file is catalogued."""
+        if source.startswith("c_"):
+            return source if self.get(source) else None
+        p = Path(source).expanduser()
+        if not p.is_absolute() and project is not None:
+            p = Path(project) / p
+        cid = clip_id_for(p)
+        return cid if self.get(cid) else None
 
     def all_ids(self) -> Iterable[str]:
         return [r["id"] for r in self.db.execute("SELECT id FROM clips")]

@@ -68,6 +68,7 @@ description: How to write timeline.json for vh — shots, fits, punch-ins, trans
   0.4-0.7.
 - Music: `src`, `volume`, `duckTo` (level under speech), `fadeIn`, `fadeOut`, `sourceIn`. Ducking follows the
   caption word timings. Use music the user owns or royalty-free; TikTok/YouTube library audio can't be embedded.
+  Workspace tracks: `vh assets list --kind music`, then `vh assets use <project> <file>` prints the `src`.
 - Final mix is normalized to -14 LUFS / -1 dBTP.
 
 ## Timing recipe

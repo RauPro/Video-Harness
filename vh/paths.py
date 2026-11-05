@@ -25,3 +25,8 @@ def cache_dir() -> Path:
     d = Path(os.environ.get("VH_CACHE", data_dir() / "cache"))
     d.mkdir(parents=True, exist_ok=True)
     return d
+
+
+def workspace_dir() -> Path:
+    """Root of the user's video workspace (footage/, assets/, projects/, published/, ideas/)."""
+    return Path(os.environ.get("VH_WORKSPACE", Path.home() / "VideoHarness")).expanduser()
