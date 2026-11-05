@@ -8,6 +8,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from .catalog import Catalog
+from .conform import conform_insert
 from .ffmpeg import FFmpegError, ffmpeg, loudness, media_duration
 from .paths import RENDERER_DIR, SFX_DIR
 from .sfx import LIBRARY
@@ -39,13 +41,16 @@ def resolve_props(tl: Timeline, project: Path) -> dict:
     if missing:
         raise RenderError(f"clips not conformed: {missing}; run `vh conform {project}` first")
     for ov in tl.overlays:
-        if isinstance(ov, ImageInsert) and not (ov.media and (project / ov.media).exists()):
-            raise RenderError(f"imageInsert {ov.src} not conformed; run `vh conform {project}` first")
+        if isinstance(ov, ImageInsert):  # re-resolve from src so an edited src never renders stale media (cached)
+            try:
+                conform_insert(ov, project, Catalog())
+            except FileNotFoundError as e:
+                raise RenderError(str(e)) from e
     theme = load_theme(tl.style)
     words: list[dict] = []
     cap_path = project / (tl.captions.src if tl.captions else "captions.json")
     show = tl.captions is not None and (tl.captions.preset or theme["captions"]["preset"]) != "none"
-    if cap_path.exists():
+    if cap_path.exists() and (tl.voiceover or tl.captions):
         words = json.loads(cap_path.read_text())
         offset = round((tl.voiceover.start if tl.voiceover else 0) * 1000)
         if offset:
@@ -57,7 +62,7 @@ def resolve_props(tl: Timeline, project: Path) -> dict:
         speech = speech_regions(words)
     elif tl.voiceover:  # no word timings: duck under the whole voiceover
         vd = voice_duration(tl, project)
-        speech = [[round(tl.voiceover.start * 1000), round((tl.voiceover.start + (vd or 0)) * 1000)]] if vd else []
+        speech = [[round(tl.voiceover.start * 1000), round(vd * 1000)]] if vd else []  # vd includes start
     else:
         speech = []
     sfx = [{**s.model_dump(), "src": _sfx_src(project, s.src)} for s in tl.sfx]
@@ -68,6 +73,8 @@ def resolve_props(tl: Timeline, project: Path) -> dict:
     duration = tl.computed_duration()
     data = tl.model_dump(mode="json", exclude_none=True)
     data["sfx"] = sfx
+    for clip, d in zip(tl.video, data["video"], strict=True):  # footage left after the cut, for transition overlap
+        d["tailMax"] = max(0.0, round(media_duration(project / clip.src) - (clip.srcIn or 0) - clip.duration, 4))
     return {
         "timeline": data,
         "theme": theme,

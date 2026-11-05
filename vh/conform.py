@@ -75,7 +75,7 @@ def conform_clip(tl: Timeline, clip: VideoClip, project: Path, catalog: Catalog,
     is_image = clip.kind == "image" or src.suffix.lower() in IMAGE_EXTS
     st = src.stat()
     handle_in = 0.0 if is_image else min(HANDLE, clip.sourceIn)
-    length = clip.duration * clip.speed + handle_in + HANDLE
+    length = clip.duration * clip.speed + handle_in + HANDLE * max(clip.speed, 1.0)  # >= HANDLE output s of tail
     info = probe(src)
     vf = build_filter(clip, w, h, tl.fps, *info.display_size)
     key = hashlib.sha1(
