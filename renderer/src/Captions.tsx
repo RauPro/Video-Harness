@@ -1,7 +1,7 @@
 import React, {useMemo} from 'react';
 import {AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {font} from './fonts';
-import type {Caption, Props} from './types';
+import type {Caption, Position, Props} from './types';
 import {POSITION_Y, isMoney, normWord, outline} from './util';
 
 type Page = {startMs: number; endMs: number; words: Caption[]};
@@ -27,7 +27,7 @@ export const paginate = (words: Caption[], maxWords: number, pauseMs = 320): Pag
   return pages;
 };
 
-// Overlays that sit where the captions are; captions step aside while they are on screen.
+// Overlays that sit where the captions are; captions move out of their way while they are on screen.
 const BLOCKING = new Set(['priceStamp', 'kineticText', 'infoCard']);
 
 export const CaptionsLayer: React.FC<{props: Props}> = ({props}) => {
@@ -43,10 +43,14 @@ export const CaptionsLayer: React.FC<{props: Props}> = ({props}) => {
   const ms = (frame / fps) * 1000;
   const t = frame / fps;
   const hidden = (timeline.captions?.hideDuring ?? []).some(([a, b]) => t >= a && t < b) ||
-    timeline.overlays.some((o) => t >= o.start && t < o.start + o.duration && (
-      o.type === 'questionCard' ||
-      (BLOCKING.has(o.type) && 'position' in o && o.position === (cfg.position ?? theme.captions.position))
-    ));
+    timeline.overlays.some((o) => o.type === 'questionCard' && t >= o.start && t < o.start + o.duration);
+  const basePos = (cfg.position ?? theme.captions.position) as Position;
+  const blocked = new Set(timeline.overlays
+    .filter((o) => t >= o.start && t < o.start + o.duration && BLOCKING.has(o.type) && 'position' in o)
+    .map((o) => (o as {position: Position}).position));
+  const position = blocked.has(basePos)
+    ? (['lower', 'upper', 'top', 'center'] as Position[]).find((p) => p !== basePos && !blocked.has(p)) ?? basePos
+    : basePos;
   const page = pages.find((p) => ms >= p.startMs && ms < p.endMs);
   if (hidden || !page) return null;
 
@@ -55,7 +59,7 @@ export const CaptionsLayer: React.FC<{props: Props}> = ({props}) => {
   const scale = width / 1080;
   const size = (cfg.size ?? 90) * scale;
   const upper = cfg.uppercase ?? theme.captions.uppercase;
-  const top = POSITION_Y[(cfg.position ?? theme.captions.position) as keyof typeof POSITION_Y] * 100;
+  const top = POSITION_Y[position] * 100;
 
   const colorFor = (w: Caption, active: boolean) => {
     const n = normWord(w.text);

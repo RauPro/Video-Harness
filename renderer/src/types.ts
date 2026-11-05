@@ -41,7 +41,7 @@ export type Overlay = Base &
     | {type: 'flash'; color: string; opacity: number}
     | {type: 'arrowCallout'; text: string; x: number; y: number; angle: number; color: string}
     | {type: 'infoCard'; title?: string; rows: {left: string; right: string}[]; accent?: string; position: Position}
-    | {type: 'imageInsert'; src: string; frame: 'phone' | 'polaroid' | 'none';
+    | {type: 'imageInsert'; src: string; media?: string; frame: 'phone' | 'polaroid' | 'none';
         background: 'paper-red' | 'paper-blue' | 'blur' | 'none'; x: number; y: number; scale: number; rotate: number}
     | {type: 'emoji'; emoji: string; x: number; y: number; size: number}
     | {type: 'progressBar'; color?: string}

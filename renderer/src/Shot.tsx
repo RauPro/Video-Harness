@@ -11,6 +11,11 @@ const GRADES: Record<VideoClip['grade'], string> = {
   film: 'contrast(1.1) saturate(0.88) sepia(0.12)',
 };
 
+// Transitions that reveal the outgoing shot, which Main keeps playing underneath.
+export const OVERLAP = new Set(['whip', 'slide', 'fade', 'zoom']);
+// Conform adds this much footage after each shot (vh/conform.py HANDLE).
+export const HANDLE_SECONDS = 0.25;
+
 const DIR: Record<string, [number, number]> = {left: [1, 0], right: [-1, 0], up: [0, 1], down: [0, -1]};
 
 export const Shot: React.FC<{clip: VideoClip}> = ({clip}) => {
@@ -61,7 +66,7 @@ export const Shot: React.FC<{clip: VideoClip}> = ({clip}) => {
   }
 
   return (
-    <AbsoluteFill style={{overflow: 'hidden', backgroundColor: 'black'}}>
+    <AbsoluteFill style={{overflow: 'hidden', backgroundColor: t && OVERLAP.has(t.type) ? 'transparent' : 'black'}}>
       <AbsoluteFill style={{transform, transformOrigin: origin, filter, opacity}}>
         <OffthreadVideo
           src={staticFile(clip.src)}

@@ -260,8 +260,9 @@ const PAPER = (color: string) => (
 
 const ImageInsert: React.FC<P<'imageInsert'>> = ({o, theme}) => {
   const {enter, exit, width, height, k} = useAnim(o);
-  const isVideo = /\.(mp4|mov|webm|m4v)$/i.test(o.src);
-  const src = staticFile(o.src);
+  const file = o.media ?? o.src;
+  const isVideo = /\.(mp4|mov|webm|m4v)$/i.test(file);
+  const src = staticFile(file);
   const media = isVideo
     ? <OffthreadVideo src={src} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />
     : <Img src={src} style={{width: '100%', height: '100%', objectFit: 'cover'}} />;
