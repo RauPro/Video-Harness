@@ -479,9 +479,13 @@ def assets_tag(
 @assets_app.command("use")
 def assets_use(project: ProjectArg, file: Path) -> None:
     """Copy an asset into the project and print the src to put in timeline.json."""
-    from .workspace import use_asset
+    from .workspace import asset_info, use_asset
 
     print(use_asset(project, file))
+    if not asset_info(file).get("license"):
+        console.print(
+            "[yellow]warning: no license recorded; use it only if you own it (vh assets tag <file> --license ...)[/]"
+        )
 
 
 @app.command()
@@ -527,10 +531,13 @@ def publish(
     from .workspace import publish as do_publish
 
     clips = _used_clips(project)
+    try:
+        dest = do_publish(project, platform=platform, url=url, title=title, clips=sorted({c for c, _, _ in clips}))
+    except FileNotFoundError as e:
+        _fail(str(e))
     cat = Catalog()
     cat.record_usage(project, clips)
     cat.mark_published(project)
-    dest = do_publish(project, platform=platform, url=url, title=title, clips=sorted({c for c, _, _ in clips}))
     console.print(f"published to {dest}")
 
 

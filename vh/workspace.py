@@ -132,12 +132,16 @@ def use_asset(project: Path, file: Path, path: Path | None = None) -> str:
     src = r / "assets" / rel
     if not src.exists():
         raise FileNotFoundError(src)
-    sub = {"music": "music", "sfx": "sfx"}.get(rel.split("/", 1)[0], "media/assets")
-    dest = project / sub / src.name
+    kind, _, rest = rel.partition("/")
+    dest = project / kind / rest if kind in ("music", "sfx") else project / "media" / "assets" / rel
     dest.parent.mkdir(parents=True, exist_ok=True)
-    if not dest.exists() or dest.stat().st_size != src.stat().st_size:
-        shutil.copy2(src, dest)
+    shutil.copy2(src, dest)
     return dest.relative_to(project).as_posix()
+
+
+def asset_info(file: Path, path: Path | None = None) -> dict:
+    r = root(path)
+    return _asset_meta(r).get(_rel(r, file), {})
 
 
 # ---------------------------------------------------------------- published
@@ -159,6 +163,9 @@ def publish(
     prev = [m.parent for m in (r / "published").glob("*/meta.json") if json.loads(m.read_text()).get("project") == key]
     name = project.name if project.name[:4].isdigit() else f"{(today or date.today()).isoformat()}-{project.name}"
     dest = prev[0] if prev else r / "published" / name
+    n = 2
+    while not prev and dest.exists():
+        dest, n = r / "published" / f"{name}-{n}", n + 1
     dest.mkdir(parents=True, exist_ok=True)
     shutil.copy2(final, dest / "final.mp4")
     for extra in ("script.md", "timeline.json"):

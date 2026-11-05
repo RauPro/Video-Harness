@@ -39,7 +39,13 @@ def test_init_and_assets(ws, tmp_path):
 
     project = tmp_path / "p"
     assert use_asset(project, track) == "music/chill.mp3"
-    assert (project / "music" / "chill.mp3").read_bytes() == b"fake"
+    track.write_bytes(b"edit")
+    use_asset(project, track)
+    assert (project / "music" / "chill.mp3").read_bytes() == b"edit"
+    for kind in ("images", "brand"):
+        (ws / "assets" / kind / "logo.png").write_bytes(kind.encode())
+    a, b = use_asset(project, ws / "assets/images/logo.png"), use_asset(project, ws / "assets/brand/logo.png")
+    assert a != b and (project / a).read_bytes() == b"images"
     with pytest.raises(ValueError):
         tag_asset(tmp_path / "elsewhere.mp3")
 
@@ -93,6 +99,11 @@ def test_publish_archives_final(ws, tmp_path):
     assert [p["platform"] for p in meta["posts"]] == ["tiktok", "youtube"] and meta["clips"] == ["c_1"]
     with pytest.raises(FileNotFoundError):
         publish(tmp_path / "empty", platform="tiktok")
+    other = tmp_path / "trip2" / "bangkok"
+    (other / "out").mkdir(parents=True)
+    (other / "out" / "final.mp4").write_bytes(b"other")
+    assert publish(other, platform="tiktok", today=date(2026, 11, 5)).name == "2026-11-05-bangkok-2"
+    assert (dest / "final.mp4").read_bytes() == b"video"
 
 
 @needs_ffmpeg
@@ -107,6 +118,8 @@ def test_cli_publish_records_clip_usage(ws, tmp_path):
     tl = json.loads((project / "timeline.json").read_text())
     tl["video"] = [{"id": "s1", "source": str(clip), "start": 0, "duration": 2, "sourceIn": 0.5}]
     (project / "timeline.json").write_text(json.dumps(tl))
+    assert runner.invoke(app, ["publish", str(project), "--platform", "tiktok"]).exit_code != 0
+    assert Catalog().usage(clip_id_for(clip)) == []
     (project / "out" / "final.mp4").write_bytes(b"video")
     r = runner.invoke(app, ["publish", str(project), "--platform", "tiktok"])
     assert r.exit_code == 0, r.output
