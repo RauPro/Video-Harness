@@ -10,9 +10,9 @@ description: End-to-end procedure to turn the user's script + footage into a fin
    folders. Ask only for what you can't infer.
 2. **Footage.** `vh stats`. If the folders aren't indexed: `vh ingest <folders> --transcribe` (see `footage-search`).
 3. **Project.** `vh new projects/<slug> --style <style> --format <format> --title "<title>"`.
-4. **Script.** Write `script.md`. Narration is plain lines; editing notes go in `[brackets]`, `#` headings or
-   `> notes` and are not spoken. Structure for short-form: hook (≤2 s) → promise → 3-5 beats → payoff → CTA/teaser.
-   About 150 words/min of Spanish narration (3 min ≈ 450 words).
+4. **Script.** Write `script.md` following `script-writing` (hook formulas, structure per format, Raul's voice,
+   word budget). Narration is plain lines; editing notes go in `[brackets]`, `#` headings or `> notes` and are not
+   spoken. Raul speaks ~185 words/min (3 min ≈ 550 words); aim ~10% under when using TTS.
 5. **Voice.** `vh voiceover <p> --provider elevenlabs|openai` (needs `ELEVENLABS_API_KEY`/`OPENAI_API_KEY`;
    `espeak` is an offline placeholder only). If the user recorded their voice, copy it to `<p>/audio/` and set
    `voiceover.src` in `timeline.json`.
