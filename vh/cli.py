@@ -483,7 +483,7 @@ def assets_use(project: ProjectArg, file: Path) -> None:
 
     print(use_asset(project, file))
     if not asset_info(file).get("license"):
-        console.print(
+        Console(stderr=True).print(
             "[yellow]warning: no license recorded; use it only if you own it (vh assets tag <file> --license ...)[/]"
         )
 
