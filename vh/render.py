@@ -44,8 +44,9 @@ def resolve_props(tl: Timeline, project: Path) -> dict:
         if isinstance(ov, ImageInsert):  # re-resolve from src so an edited src never renders stale media (cached)
             try:
                 conform_insert(ov, project, Catalog())
-            except FileNotFoundError as e:
-                raise RenderError(str(e)) from e
+            except FileNotFoundError as e:  # source offline (e.g. disk unplugged): reuse media made from this src
+                if not (ov.media and ov.mediaSrc == ov.src and (project / ov.media).exists()):
+                    raise RenderError(str(e)) from e
     theme = load_theme(tl.style)
     words: list[dict] = []
     cap_path = project / (tl.captions.src if tl.captions else "captions.json")

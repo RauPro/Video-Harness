@@ -385,6 +385,19 @@
           "description": "Set by `vh conform`: file to render, relative to project.",
           "title": "Media"
         },
+        "mediaSrc": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Set by `vh conform`: the `src` that `media` was made from.",
+          "title": "Mediasrc"
+        },
         "frame": {
           "default": "phone",
           "enum": [

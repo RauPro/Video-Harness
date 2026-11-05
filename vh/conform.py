@@ -149,7 +149,7 @@ def conform_insert(ov: ImageInsert, project: Path, catalog: Catalog) -> None:
     ):
         if not (project / ov.src).exists():
             raise FileNotFoundError(f"imageInsert src not found: {ov.src}")
-        ov.media = ov.src
+        ov.media = ov.mediaSrc = ov.src
         return
     src = catalog.resolve(ov.src)
     if not src.is_absolute():
@@ -173,6 +173,7 @@ def conform_insert(ov: ImageInsert, project: Path, catalog: Catalog) -> None:
                 "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", str(dest),
             )  # fmt: skip
     ov.media = dest.relative_to(project).as_posix()
+    ov.mediaSrc = ov.src
 
 
 def conform(tl: Timeline, project: Path, catalog: Catalog, *, workers: int = 3, force: bool = False) -> Timeline:

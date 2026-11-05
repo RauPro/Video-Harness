@@ -164,6 +164,7 @@ class ImageInsert(_Overlay):
     type: Literal["imageInsert"]
     src: str = Field(description="Image/video path relative to the project, absolute path, or catalog id.")
     media: str | None = Field(None, description="Set by `vh conform`: file to render, relative to project.")
+    mediaSrc: str | None = Field(None, description="Set by `vh conform`: the `src` that `media` was made from.")
     frame: Literal["phone", "polaroid", "none"] = "phone"
     background: Literal["paper-red", "paper-blue", "blur", "none"] = "none"
     x: float = Field(0.5, ge=0, le=1)
