@@ -38,8 +38,8 @@ Open the repo in Claude Code or Codex and ask, for example:
 > /Volumes/Insta360/2026-thailand and ~/Phone/DCIM.
 
 The agent follows `AGENTS.md` (Claude Code reads it via `CLAUDE.md`) and the skills in `.agents/skills/`
-(symlinked to `.claude/skills/`): `make-video`, `footage-search`, `timeline-authoring`, `creator-styles`,
-`video-qa`, `insta360`.
+(symlinked to `.claude/skills/`): `make-video`, `script-writing`, `footage-search`, `timeline-authoring`,
+`creator-styles`, `video-qa`, `insta360`.
 
 ## Use by hand
 

@@ -24,6 +24,7 @@ Use the skills in `.agents/skills/` (also linked as `.claude/skills/`):
 | Skill | When |
 | --- | --- |
 | `make-video` | The user asks for a video. End-to-end procedure. |
+| `script-writing` | Writing or tightening `script.md`: hooks, structure, word budget, CTA, Raul's voice. |
 | `footage-search` | Indexing, finding and describing clips. |
 | `timeline-authoring` | Writing/editing `timeline.json`: shots, overlays, SFX, music. |
 | `creator-styles` | Picking/applying a style (`raul`, `eric-struk`, `luisito`, `sam-tyler`) or adding one. |
