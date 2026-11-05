@@ -27,6 +27,9 @@ export const paginate = (words: Caption[], maxWords: number, pauseMs = 320): Pag
   return pages;
 };
 
+// Overlays that sit where the captions are; captions step aside while they are on screen.
+const BLOCKING = new Set(['priceStamp', 'kineticText', 'infoCard']);
+
 export const CaptionsLayer: React.FC<{props: Props}> = ({props}) => {
   const {timeline, theme, captions} = props;
   const frame = useCurrentFrame();
@@ -40,7 +43,10 @@ export const CaptionsLayer: React.FC<{props: Props}> = ({props}) => {
   const ms = (frame / fps) * 1000;
   const t = frame / fps;
   const hidden = (timeline.captions?.hideDuring ?? []).some(([a, b]) => t >= a && t < b) ||
-    timeline.overlays.some((o) => o.type === 'questionCard' && t >= o.start && t < o.start + o.duration);
+    timeline.overlays.some((o) => t >= o.start && t < o.start + o.duration && (
+      o.type === 'questionCard' ||
+      (BLOCKING.has(o.type) && 'position' in o && o.position === (cfg.position ?? theme.captions.position))
+    ));
   const page = pages.find((p) => ms >= p.startMs && ms < p.endMs);
   if (hidden || !page) return null;
 
