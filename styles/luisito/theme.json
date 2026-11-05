@@ -1,0 +1,10 @@
+{
+  "description": "Luisito Comunica: vlog energy. Yellow stacked location lower-thirds, cutouts on red paper, phone-screen inserts, green-flash 'slime' price reveals, small caps captions.",
+  "extends": "eric-struk",
+  "fonts": {"display": "Anton", "displayWeight": 400, "caption": "Montserrat", "captionWeight": 800},
+  "colors": {"highlight": "#FFE135", "money": "#B6FF3B", "lowerThird": "#FFE135", "accent": "#7CFF3A"},
+  "captions": {"preset": "subtle", "position": "lower", "maxWords": 4, "uppercase": true, "size": 44, "strokeWidth": 0},
+  "transitions": {"default": "cut", "accent": "flash"},
+  "pacing": {"avgShotSeconds": 2.5, "maxShotSeconds": 6, "punchInEvery": 4},
+  "sfx": {"transition": "swish", "stamp": "boom", "reveal": "cash", "text": "pop", "teaser": "riser"}
+}

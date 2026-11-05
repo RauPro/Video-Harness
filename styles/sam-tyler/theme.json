@@ -1,0 +1,11 @@
+{
+  "description": "Sam Tyler: Bangkok expat tours and list shorts. Calm long-form pacing, blue name tags, numbered list headers ('1. TDAC'), sentence-case captions.",
+  "extends": "eric-struk",
+  "fonts": {"display": "Montserrat", "displayWeight": 800, "caption": "Inter", "captionWeight": 700},
+  "colors": {"highlight": "#FFFFFF", "accent": "#4ADE80", "money": "#4ADE80", "tag": "#1E6FFF", "lowerThird": "#E53935", "lowerThirdText": "#FFFFFF"},
+  "captions": {"preset": "subtle", "position": "lower", "maxWords": 6, "uppercase": false, "size": 46, "strokeWidth": 0},
+  "transitions": {"default": "cut", "accent": "slide"},
+  "pacing": {"avgShotSeconds": 4.0, "maxShotSeconds": 9, "punchInEvery": 0},
+  "sfx": {"transition": "swish", "stamp": "ding", "reveal": "ding", "text": "click", "teaser": "riser"},
+  "music": {"volume": 0.16, "duckTo": 0.05}
+}

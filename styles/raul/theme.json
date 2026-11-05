@@ -1,0 +1,10 @@
+{
+  "description": "Raul (house style): Spanish-language Thailand/travel. Eric's caption punch + Luisito's lower-thirds and reveals + Sam's list headers. 3-word pop captions.",
+  "extends": "eric-struk",
+  "fonts": {"display": "Montserrat", "displayWeight": 900, "caption": "Montserrat", "captionWeight": 900},
+  "colors": {"highlight": "#FFE135", "money": "#2EE04F", "lowerThird": "#FFE135"},
+  "captions": {"preset": "bold-pop", "position": "center", "maxWords": 3, "uppercase": true, "size": 92, "strokeWidth": 7},
+  "transitions": {"default": "cut", "accent": "whip"},
+  "pacing": {"avgShotSeconds": 2.4, "maxShotSeconds": 5, "punchInEvery": 3},
+  "sfx": {"transition": "whoosh", "stamp": "pop", "reveal": "cash", "text": "click", "teaser": "riser"}
+}
