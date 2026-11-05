@@ -45,8 +45,11 @@ def resolve_props(tl: Timeline, project: Path) -> dict:
             try:
                 conform_insert(ov, project, Catalog())
             except FileNotFoundError as e:  # source offline (e.g. disk unplugged): reuse media made from this src
-                if not (ov.media and ov.mediaSrc == ov.src and (project / ov.media).exists()):
+                cached = project / ov.media if ov.media and ov.mediaSrc == ov.src else None
+                if not (cached and cached.exists()):
                     raise RenderError(str(e)) from e
+                if cached.suffix == ".mp4" and (media_duration(cached) or 0) < ov.duration - 0.05:
+                    raise RenderError(f"{e}; cached {ov.media} is shorter than the insert's {ov.duration}s") from e
     theme = load_theme(tl.style)
     words: list[dict] = []
     cap_path = project / (tl.captions.src if tl.captions else "captions.json")
