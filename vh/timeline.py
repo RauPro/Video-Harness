@@ -162,7 +162,8 @@ class InfoCard(_Overlay):
 
 class ImageInsert(_Overlay):
     type: Literal["imageInsert"]
-    src: str = Field(description="Image/video path relative to the project (or catalog id, conformed).")
+    src: str = Field(description="Image/video path relative to the project, absolute path, or catalog id.")
+    media: str | None = Field(None, description="Set by `vh conform`: file to render, relative to project.")
     frame: Literal["phone", "polaroid", "none"] = "phone"
     background: Literal["paper-red", "paper-blue", "blur", "none"] = "none"
     x: float = Field(0.5, ge=0, le=1)
@@ -277,23 +278,32 @@ def save_timeline(tl: Timeline, path: Path) -> None:
     Path(path).write_text(tl.model_dump_json(indent=2, exclude_none=True) + "\n")
 
 
-def lint_timeline(tl: Timeline, voice_duration: float | None = None) -> list[str]:
-    """Return human-readable warnings for problems the schema can't express."""
-    warnings: list[str] = []
+def lint_errors(tl: Timeline) -> list[str]:
+    """Problems that make the render wrong (black gaps, overlapping shots); `vh build` refuses to run with these."""
+    errors: list[str] = []
     frame = 1.0 / tl.fps
     total = tl.computed_duration()
     clips = sorted(tl.video, key=lambda c: c.start)
     if not clips:
-        warnings.append("timeline has no video clips")
+        errors.append("timeline has no video clips")
     cursor = 0.0
     for c in clips:
         if c.start - cursor > frame:
-            warnings.append(f"gap (black frames) {cursor:.2f}s-{c.start:.2f}s before clip {c.id}")
+            errors.append(f"gap (black frames) {cursor:.2f}s-{c.start:.2f}s before clip {c.id}")
         if cursor - c.start > frame:
-            warnings.append(f"clip {c.id} overlaps previous clip by {cursor - c.start:.2f}s")
+            errors.append(f"clip {c.id} overlaps previous clip by {cursor - c.start:.2f}s")
         cursor = max(cursor, c.end)
     if clips and total - cursor > frame:
-        warnings.append(f"no video from {cursor:.2f}s to end {total:.2f}s")
+        errors.append(f"no video from {cursor:.2f}s to end {total:.2f}s")
+    return errors
+
+
+def lint_timeline(tl: Timeline, voice_duration: float | None = None) -> list[str]:
+    """Return human-readable problems the schema can't express: `lint_errors` first, then advisory warnings."""
+    warnings: list[str] = lint_errors(tl)
+    frame = 1.0 / tl.fps
+    total = tl.computed_duration()
+    clips = sorted(tl.video, key=lambda c: c.start)
     for o in tl.overlays:
         if o.end > total + frame:
             warnings.append(f"overlay {o.type}@{o.start:.2f}s ends after the video ({total:.2f}s)")

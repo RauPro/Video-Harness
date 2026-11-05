@@ -62,3 +62,11 @@ def test_lint_punch_and_overlay_bounds():
 
 def test_committed_schema_is_current():
     assert json.loads(SCHEMA_PATH.read_text()) == Timeline.model_json_schema(), "run `vh schema`"
+
+
+def test_lint_errors_only_blocking():
+    from vh.timeline import lint_errors
+
+    assert lint_errors(Timeline(video=[clip(0, 0, 2), clip(1, 3, 2)])) and not lint_errors(
+        Timeline(video=[clip(0, 0, 20)])
+    )

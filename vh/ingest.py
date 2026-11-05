@@ -102,7 +102,17 @@ def ingest(
                 continue
             existing = catalog.get(fields["id"])
             if existing:  # keep human/agent annotations across re-index
-                for keep in ("description", "tags", "rating", "transcript", "words", "language"):
+                changed = (
+                    existing.row["size"] != fields["size"] or abs((existing.row["mtime"] or 0) - fields["mtime"]) > 1e-3
+                )
+                keeps = (
+                    ("description", "tags", "rating")
+                    if changed
+                    else ("description", "tags", "rating", "transcript", "words", "language")
+                )
+                if changed:  # new content: stale speech data must go so --transcribe redoes it
+                    fields.update(transcript=None, words=None, language=None)
+                for keep in keeps:
                     if existing.row[keep] and keep not in fields:
                         fields[keep] = existing.row[keep]
             catalog.upsert(fields)

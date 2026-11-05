@@ -315,16 +315,18 @@ def validate(project: ProjectArg) -> None:
 
     from .render import voice_duration
     from .styles import load_theme
-    from .timeline import lint_timeline
+    from .timeline import lint_errors, lint_timeline
 
     try:
         tl = _tl(project)
         load_theme(tl.style)
     except (ValidationError, KeyError) as e:
         _fail(str(e))
-    warnings = lint_timeline(tl, voice_duration(tl, project))
-    for w in warnings:
-        console.print(f"[yellow]warning[/yellow]: {w}")
+    errors = lint_errors(tl)
+    for w in lint_timeline(tl, voice_duration(tl, project)):
+        console.print(f"[red]error[/red]: {w}" if w in errors else f"[yellow]warning[/yellow]: {w}")
+    if errors:
+        _fail(f"{len(errors)} timeline error(s); fix them before rendering")
     console.print(
         f"[green]valid[/green] ({len(tl.video)} clips, {len(tl.overlays)} overlays, {tl.computed_duration():.2f}s)"
     )
@@ -394,8 +396,9 @@ def build(project: ProjectArg, preview: bool = False) -> None:
     """validate -> conform -> render -> qa."""
     validate(project)
     conform(project)
-    render(project, preview=preview, out=None, master=True, concurrency=None)
-    qa(project, None)
+    dest = project / "out" / ("preview.mp4" if preview else "final.mp4")
+    render(project, preview=preview, out=dest, master=True, concurrency=None)
+    qa(project, dest)
 
 
 # ---------------------------------------------------------------- styles / references

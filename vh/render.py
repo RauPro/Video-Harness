@@ -39,18 +39,27 @@ def resolve_props(tl: Timeline, project: Path) -> dict:
     if missing:
         raise RenderError(f"clips not conformed: {missing}; run `vh conform {project}` first")
     for ov in tl.overlays:
-        if isinstance(ov, ImageInsert) and not (project / ov.src).exists():
-            raise RenderError(f"imageInsert src not found in project: {ov.src}")
+        if isinstance(ov, ImageInsert) and not (ov.media and (project / ov.media).exists()):
+            raise RenderError(f"imageInsert {ov.src} not conformed; run `vh conform {project}` first")
     theme = load_theme(tl.style)
-    captions: list[dict] = []
-    if tl.captions and (tl.captions.preset or theme["captions"]["preset"]) != "none":
-        cap_path = project / tl.captions.src
-        if not cap_path.exists():
-            raise RenderError(f"{cap_path} missing; run `vh captions {project}`")
-        captions = json.loads(cap_path.read_text())
+    words: list[dict] = []
+    cap_path = project / (tl.captions.src if tl.captions else "captions.json")
+    show = tl.captions is not None and (tl.captions.preset or theme["captions"]["preset"]) != "none"
+    if cap_path.exists():
+        words = json.loads(cap_path.read_text())
         offset = round((tl.voiceover.start if tl.voiceover else 0) * 1000)
         if offset:
-            captions = [{**c, "startMs": c["startMs"] + offset, "endMs": c["endMs"] + offset} for c in captions]
+            words = [{**c, "startMs": c["startMs"] + offset, "endMs": c["endMs"] + offset} for c in words]
+    elif show:
+        raise RenderError(f"{cap_path} missing; run `vh captions {project}`")
+    captions = words if show else []
+    if words:
+        speech = speech_regions(words)
+    elif tl.voiceover:  # no word timings: duck under the whole voiceover
+        vd = voice_duration(tl, project)
+        speech = [[round(tl.voiceover.start * 1000), round((tl.voiceover.start + (vd or 0)) * 1000)]] if vd else []
+    else:
+        speech = []
     sfx = [{**s.model_dump(), "src": _sfx_src(project, s.src)} for s in tl.sfx]
     for ov in tl.overlays:
         if ov.sfx:
@@ -63,7 +72,7 @@ def resolve_props(tl: Timeline, project: Path) -> dict:
         "timeline": data,
         "theme": theme,
         "captions": captions,
-        "speech": speech_regions(captions),
+        "speech": speech,
         "width": w,
         "height": h,
         "fps": tl.fps,

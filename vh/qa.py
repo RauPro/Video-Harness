@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
 from .ffmpeg import black_segments, contact_sheet, loudness, probe, thumbnail
@@ -10,6 +11,22 @@ from .timeline import Timeline, lint_timeline
 
 TIKTOK_UI_BOTTOM = 0.18  # bottom ~18% of a vertical frame is covered by caption/buttons UI
 TIKTOK_UI_RIGHT = 0.12
+
+
+def _x_extent(o) -> list[float]:
+    """Horizontal points (fraction of width) an x-positioned overlay occupies."""
+    x = getattr(o, "x", None)
+    if x is None:
+        return []
+    if o.type == "arrowCallout":
+        tail = x + math.cos(math.radians(o.angle)) * 300 / 1080
+        half_label = len(o.text) * 0.03 if o.text else 0
+        return [x + 0.03, tail, tail + half_label]
+    if o.type == "imageInsert":
+        return [x + o.scale / 2]
+    if o.type == "emoji":
+        return [x + o.size / 1080 / 2]
+    return [x]
 
 
 def run_qa(tl: Timeline, video: Path, project: Path, voice_duration: float | None = None) -> dict:
@@ -40,6 +57,10 @@ def run_qa(tl: Timeline, video: Path, project: Path, voice_duration: float | Non
             y = getattr(o, "y", None)
             if y is not None and y > 1 - TIKTOK_UI_BOTTOM:
                 warnings.append(f"{o.type}@{o.start:.1f}s at y={y} sits under the TikTok UI")
+            for px in _x_extent(o):
+                if px > 1 - TIKTOK_UI_RIGHT:
+                    warnings.append(f"{o.type}@{o.start:.1f}s reaches x={px:.2f}, under the TikTok right-side buttons")
+                    break
     qa_dir = project / "out" / "qa"
     sheet = contact_sheet(video, qa_dir / "sheet.jpg", duration=info.duration, cols=6, rows=4, width=240)
     frames = []

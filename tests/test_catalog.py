@@ -33,3 +33,19 @@ def test_ingest_search_annotate(tmp_path):
 
     a.unlink()
     assert cat.remove_missing() == 1
+
+
+@needs_ffmpeg
+def test_replaced_file_drops_stale_transcript(tmp_path):
+    import os
+
+    a = make_clip(tmp_path / "d" / "beach.mp4", "640x360")
+    cat = Catalog()
+    ingest([tmp_path / "d"], catalog=cat)
+    cid = clip_id_for(a)
+    cat.update(cid, transcript="blue water", description="beach")
+    make_clip(a, "640x360", seconds=4, color="mandelbrot")
+    os.utime(a, (1e9, 1e9))
+    ingest([tmp_path / "d"], catalog=cat)
+    c = cat.get(cid)
+    assert not c.transcript and c.description == "beach"

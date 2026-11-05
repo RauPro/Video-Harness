@@ -141,41 +141,38 @@ def _atempo(speed: float) -> str:
 
 
 def conform_insert(ov: ImageInsert, project: Path, catalog: Catalog) -> None:
+    """Resolve an insert's `src` into `media` (project-relative). `src` is never rewritten."""
     if (
         not ov.src.startswith("c_")
         and not Path(ov.src).is_absolute()
-        and (project / ov.src).exists()
-        and not ov.src.startswith("..")
+        and (project / ov.src).resolve().is_relative_to(project.resolve())
     ):
+        if not (project / ov.src).exists():
+            raise FileNotFoundError(f"imageInsert src not found: {ov.src}")
+        ov.media = ov.src
         return
     src = catalog.resolve(ov.src)
     if not src.is_absolute():
         src = (project / src).resolve()
-    dest = project / "media" / f"insert-{hashlib.sha1(str(src).encode()).hexdigest()[:8]}{src.suffix.lower()}"
-    if src.suffix.lower() in IMAGE_EXTS - {".heic"}:
-        dest.parent.mkdir(parents=True, exist_ok=True)
+    if not src.exists():
+        raise FileNotFoundError(f"imageInsert src not found: {src}")
+    st = src.stat()
+    is_image = src.suffix.lower() in IMAGE_EXTS - {".heic"}
+    key = f"{src}|{st.st_size}|{st.st_mtime}" + ("" if is_image else f"|{ov.duration:.3f}")
+    dest = project / "media" / f"insert-{hashlib.sha1(key.encode()).hexdigest()[:10]}"
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    if is_image:
+        dest = dest.with_suffix(src.suffix.lower())
         if not dest.exists():
             shutil.copy2(src, dest)
     else:
         dest = dest.with_suffix(".mp4")
         if not dest.exists():
             ffmpeg(
-                "-i",
-                str(src),
-                "-t",
-                f"{ov.duration + 0.5:.3f}",
-                "-vf",
-                "scale=1080:-2,fps=30,format=yuv420p",
-                "-an",
-                "-c:v",
-                "libx264",
-                "-preset",
-                "veryfast",
-                "-crf",
-                "20",
-                str(dest),
-            )
-    ov.src = dest.relative_to(project).as_posix()
+                "-i", str(src), "-t", f"{ov.duration + 0.5:.3f}", "-vf", "scale=1080:-2,fps=30,format=yuv420p",
+                "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", str(dest),
+            )  # fmt: skip
+    ov.media = dest.relative_to(project).as_posix()
 
 
 def conform(tl: Timeline, project: Path, catalog: Catalog, *, workers: int = 3, force: bool = False) -> Timeline:

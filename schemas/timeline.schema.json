@@ -368,9 +368,22 @@
           "type": "string"
         },
         "src": {
-          "description": "Image/video path relative to the project (or catalog id, conformed).",
+          "description": "Image/video path relative to the project, absolute path, or catalog id.",
           "title": "Src",
           "type": "string"
+        },
+        "media": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Set by `vh conform`: file to render, relative to project.",
+          "title": "Media"
         },
         "frame": {
           "default": "phone",
