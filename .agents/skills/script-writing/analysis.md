@@ -1,7 +1,7 @@
 # Key findings
 
 - **Raul (@raul.guillen.h):** the top 2 (538K, 225K) are 2-3 min, Spanish, ~185 wpm. Each opens with a contradiction or
-  myth question and has more numbers than any reference (2-7/min vs. ≤3 for Eric/Luisito). 3 of the top 5 are replies to comments, and the Avianca → A380 →
+  myth question and has dense numbers (2-7/min; Eric and Luisito ≤3, Sam's tip TikToks 5-6). 3 of the top 5 are replies to comments, and the Avianca → A380 →
   Songkran → budget videos form a series. The weakest of the top 8 opens with generic praise (Prague, 54K).
 - **Eric Struk:** 245-285 wpm on Shorts. Formula: claim + "according to Google" + test, then "You see, normally" contrast,
   an escalation ladder of tests, a one-line conclusion, and a sponsor inside a beat.
