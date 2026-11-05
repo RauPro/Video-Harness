@@ -16,7 +16,7 @@ export const Main: React.FC<Props> = (props) => {
       {shots.map((clip, i) => {
         const next = shots[i + 1];
         const tail = next?.transitionIn && OVERLAP.has(next.transitionIn.type)
-          ? f(Math.min(next.transitionIn.duration, HANDLE_SECONDS)) : 0;
+          ? f(Math.min(next.transitionIn.duration, clip.tailMax ?? HANDLE_SECONDS)) : 0;
         return (
           <Sequence
             key={clip.id}

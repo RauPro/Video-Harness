@@ -25,6 +25,7 @@ export type VideoClip = {
   grade: 'none' | 'warm' | 'cool' | 'vivid' | 'bw' | 'film';
   src: string;
   srcIn?: number;
+  tailMax?: number;
 };
 
 type Base = {start: number; duration: number; sfx?: string};

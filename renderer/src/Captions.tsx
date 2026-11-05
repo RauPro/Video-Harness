@@ -28,12 +28,14 @@ export const paginate = (words: Caption[], maxWords: number, pauseMs = 320): Pag
 };
 
 // Overlays that sit where the captions are; captions move out of their way while they are on screen.
+const CAPTION_HALF = 0.06;
 const BLOCKING = new Set(['priceStamp', 'kineticText', 'infoCard']);
 
 export const CaptionsLayer: React.FC<{props: Props}> = ({props}) => {
   const {timeline, theme, captions} = props;
   const frame = useCurrentFrame();
-  const {fps, width} = useVideoConfig();
+  const {fps, width, height} = useVideoConfig();
+  const k = width / 1080;
   const cfg = {...theme.captions, ...Object.fromEntries(Object.entries(timeline.captions ?? {}).filter(([, v]) => v != null))};
   const preset = cfg.preset ?? theme.captions.preset;
   const maxWords = cfg.maxWords ?? theme.captions.maxWords;
@@ -42,21 +44,24 @@ export const CaptionsLayer: React.FC<{props: Props}> = ({props}) => {
 
   const ms = (frame / fps) * 1000;
   const t = frame / fps;
-  const hidden = (timeline.captions?.hideDuring ?? []).some(([a, b]) => t >= a && t < b) ||
-    timeline.overlays.some((o) => o.type === 'questionCard' && t >= o.start && t < o.start + o.duration);
+  const active = timeline.overlays.filter((o) => t >= o.start && t < o.start + o.duration);
+  // Vertical span (fraction of height) each centered overlay covers; captions take the first slot clear of all of them.
+  const spans = active.filter((o) => BLOCKING.has(o.type) && 'position' in o).map((o) => {
+    const c = POSITION_Y[(o as {position: Position}).position];
+    const half = o.type === 'infoCard' ? ((60 + (o.title ? 52 : 0) + o.rows.length * 62) * k) / height / 2 + 0.02 : 0.09;
+    return [c - half, c + half];
+  });
   const basePos = (cfg.position ?? theme.captions.position) as Position;
-  const blocked = new Set(timeline.overlays
-    .filter((o) => t >= o.start && t < o.start + o.duration && BLOCKING.has(o.type) && 'position' in o)
-    .map((o) => (o as {position: Position}).position));
-  const position = blocked.has(basePos)
-    ? (['lower', 'upper', 'top', 'center'] as Position[]).find((p) => p !== basePos && !blocked.has(p)) ?? basePos
-    : basePos;
+  const position = ([basePos, 'lower', 'upper', 'top', 'center'] as Position[]).find((p) =>
+    spans.every(([a, b]) => POSITION_Y[p] + CAPTION_HALF < a || POSITION_Y[p] - CAPTION_HALF > b));
+  const hidden = !position || (timeline.captions?.hideDuring ?? []).some(([a, b]) => t >= a && t < b) ||
+    active.some((o) => o.type === 'questionCard');
   const page = pages.find((p) => ms >= p.startMs && ms < p.endMs);
   if (hidden || !page) return null;
 
   const highlights = new Set((timeline.captions?.highlight ?? []).map(normWord));
   const pageFrame = frame - Math.round((page.startMs / 1000) * fps);
-  const scale = width / 1080;
+  const scale = k;
   const size = (cfg.size ?? 90) * scale;
   const upper = cfg.uppercase ?? theme.captions.uppercase;
   const top = POSITION_Y[position] * 100;
